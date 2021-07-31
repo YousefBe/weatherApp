@@ -1,15 +1,21 @@
 <template>
-  <router-view />
+  <div class="main h-screen max-w-5xl mx-auto">
+    <Navbar/>
+    <router-view :cities="cities" />
+  </div>
 </template>
 <script>
 import axios from "axios";
+import Navbar from "./components/Navbar.vue";
 import db from "./firebase/config";
 export default {
   name: "App",
+  components:{
+    Navbar
+  },
   data() {
     return {
       apiKey: "0a70e995a8bdbec04b61327a53b9ccbe",
-      city: "aswan",
       cities: [],
     };
   },
@@ -22,23 +28,24 @@ export default {
       firebaseDb.onSnapshot((snap) => {
         snap.docChanges().forEach(async (doc) => {
           if (doc.type === "added") {
-           try {
-             const response = await axios.get(
-                `https://api.openweathermap.org/data/2.5/weather?q=${doc.doc.data().city}&units=imperial&APPID=${
-                  this.apiKey
-                }`
+            try {
+              const response = await axios.get(
+                `https://api.openweathermap.org/data/2.5/weather?q=${
+                  doc.doc.data().city
+                }&units=metric&APPID=${this.apiKey}`
               );
               const data = response.data;
-              firebaseDb.doc(doc.doc.id).update({
-                currentWeather:data
-              }).then(()=>{
-                this.cities.push(doc.doc.data());
-              }).then(()=>{
-                console.log(this.cities);
-              })
-           } catch (error) {
-             console.log(error);
-           }
+              firebaseDb
+                .doc(doc.doc.id)
+                .update({
+                  currentWeather: data,
+                })
+                .then(() => {
+                  this.cities.push(doc.doc.data());
+                })
+            } catch (error) {
+              console.log(error);
+            }
           }
         });
       });
