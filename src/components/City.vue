@@ -1,5 +1,6 @@
 <template>
-  <div class="city flex relative flex-col p-5 text-white shadow" style="min-height:250px; flex-basis:50%">
+  <div @click="goToCity" class="city cursor-pointer flex  relative flex-col p-5 text-white shadow" style="min-height:250px; flex-basis:50%">
+    <i @click="removeCity" v-if="edit" class="far fa-trash-alt edit  text-xl absolute bottom-0 left-0 z-10" ref="edit"></i>
     <span class=" z-10 capitalize block text-2xl font-semibold">{{ city.city }}</span>
     <div class="weather flex z-10 justify-end items-end flex-1">
       <span class=" text-4xl mr-2">{{ currentWeather }} &deg;</span>
@@ -26,13 +27,39 @@
 </template>
 
 <script>
+import db from '../firebase/config'
 export default {
   name: "City",
-  props: ["city"],
+  props: ["city","edit"],
+  data() {
+    return {
+      id:null,
+    }
+  },
   computed: {
     currentWeather() {
       return Math.round(this.city.currentWeather.main.temp);
     },
+  },
+  methods: {
+    removeCity(){
+      // get cities by name , then we loop through get the city id 
+      db.collection('cities').where('city' , '==' , `${this.city.city}`).get().then((docs)=>{
+        docs.forEach((doc)=>{
+          this.id = doc.id
+        })
+      }).then(()=>{
+        db.collection('cities').doc(this.id).delete()
+      });
+
+    },
+    goToCity(e){
+      if (e.target=== this.$refs.edit) {
+        // 
+      }else{
+        this.$router.push({name:"Weather" , params:{city: this.city.city}})
+      }
+    }
   },
 };
 </script>

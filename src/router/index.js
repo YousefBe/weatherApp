@@ -1,11 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AddCity from '../views/AddCity.vue'
+import Weather from '../views/Weather.vue'
 
 const routes = [
   {
     path: '/',
     name: 'AddCity',
     component: AddCity
+  },
+  {
+    path: '/weather/:city',
+    name: 'Weather',
+    component: Weather,
+    props:true
   },
 ]
 
